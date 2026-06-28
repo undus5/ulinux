@@ -1,0 +1,8 @@
+[Match]
+Name=sockstun
+[Network]
+Address=172.50.60.70/24
+[Route]
+Gateway=172.50.60.70
+Metric=64
+

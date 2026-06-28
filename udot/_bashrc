@@ -1,5 +1,7 @@
 ################################################################################
 
+[[ -n "$LS_COLORS" ]] || eval $(dircolors -b)
+
 alias ..="cd .."
 alias cdd="cd ~/Downloads"
 alias cdw="cd ~/b/works"

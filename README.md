@@ -1,1 +1,1 @@
-# hiker-linux
+# hikerlinux

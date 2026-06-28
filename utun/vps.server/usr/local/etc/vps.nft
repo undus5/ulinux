@@ -1,0 +1,22 @@
+#!/usr/bin/nft -f
+
+#flush ruleset
+#include "/usr/local/etc/firewall.nft"
+
+table inet firewall {
+
+    chain filter_input {
+        type filter hook input priority filter; policy drop;
+        ct state vmap { established : accept, related : accept, invalid : drop }
+        iifname lo accept
+        ip protocol icmp accept
+        meta l4proto ipv6-icmp accept
+        meta l4proto { tcp, udp } th dport { 22, 80, 443, 1080 } accept
+    }
+
+    chain filter_forward {
+        type filter hook forward priority filter; policy drop;
+    }
+
+}
+

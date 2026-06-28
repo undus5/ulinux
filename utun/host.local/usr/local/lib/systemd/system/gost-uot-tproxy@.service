@@ -1,0 +1,17 @@
+[Unit]
+Documentation=https://github.com/go-gost/gost
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+User=%i
+Type=simple
+ExecStart=/usr/local/bin/gost -C /usr/local/etc/gost-uot-tproxy.yaml
+TimeoutStopSec=5s
+LimitNOFILE=1024000
+PrivateTmp=true
+ProtectSystem=full
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

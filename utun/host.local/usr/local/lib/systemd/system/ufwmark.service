@@ -1,0 +1,11 @@
+[Unit]
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /usr/local/bin/ufwmark.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
