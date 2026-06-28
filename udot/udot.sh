@@ -9,6 +9,7 @@ tilde_path() { echo "$1" | sed "s#$(realpath ~)#~#"; }
 self_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
 src_dir=$self_dir
 conf_dir=~/.config
+mkdir -p $conf_dir
 
 test_names() {
    local names=()
@@ -47,6 +48,7 @@ merge_config() {
 }
 
 install_lite_xl_config() {
+   mkdir -p ${conf_dir}/lite-xl
    local path="lite-xl/init.lua"
    cp -f ${src_dir}/${path} ${conf_dir}/${path}
    echo "==> installed '$(tilde_path ${conf_dir}/${path})'"
@@ -82,7 +84,7 @@ case "$1" in
       shift
       names=$(test_names "$@")
       [[ -n "$names" ]] || errf "empty names"
-      for n in "${names[@]}"; do
+      for n in ${names[@]}; do
          case "$n" in
             lite-xl)
                install_lite_xl_config

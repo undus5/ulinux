@@ -4,8 +4,8 @@ set -e
 
 errf() { printf "$@\n" >&2; exit 1; }
 
-if [[ -z "$1" || "$1" == "-h" ]]; then
-   echo "==> require 'export DISK=; export PASS='"; exit 0
+if [[ "$1" == "-h" ]]; then
+   echo "==> require 'export DISK=; export ROOTPASS='"; exit 0
 fi
 
 [[ "$EUID" == 0 ]] || errf "==> need root priviledge"
@@ -13,8 +13,8 @@ fi
 DISK_BLOCK=$DISK
 [[ -n "$DISK_BLOCK" ]] || errf "==> require 'export DISK='"
 [[ -b $DISK_BLOCK ]] || errf "==> not a block device: $DISK_BLOCK"
-LUKS_PASS=$PASS
-[[ -n "$LUKS_PASS" ]] || errf "==> require 'export PASS='"
+LUKS_PASS=$ROOTPASS
+[[ -n "$LUKS_PASS" ]] || errf "==> require 'export ROOTPASS='"
 
 EFI_LABEL="EFIPART"
 EFI_BLOCK=/dev/disk/by-partlabel/${EFI_LABEL}

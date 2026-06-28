@@ -3,8 +3,8 @@
 SELF_DIR=$(dirname $(realpath ${BASH_SOURCE[0]}))
 source ${SELF_DIR}/packages.in
 
-BASE_PKGS="$ARCHLINUX_BASE_PKGS"
-DESK_PKGS="$ARCHLINUX_DESK_PKGS"
+BASE_PKGS="$FEDORA_BASE_PKGS"
+DESK_PKGS="$FEDORA_DESK_PKGS"
 
 bootstrap_rootfs() {
    local ROOT_DIR="$1"

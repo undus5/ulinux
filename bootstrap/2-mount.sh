@@ -10,8 +10,10 @@ MAP_NAME=root
 LUKS_BLOCK=/dev/mapper/${MAP_NAME}
 EFI_LABEL="EFIPART"
 EFI_BLOCK=/dev/disk/by-partlabel/${EFI_LABEL}
+ROOT_LABEL="ROOTPART"
+ROOT_BLOCK=/dev/disk/by-partlabel/${ROOT_LABEL}
 
-if [[ -b $LUKS_BLOCK ]]; then
+if [[ ! -b $LUKS_BLOCK ]]; then
    LUKS_PASS=$PASS
    [[ -n "$LUKS_PASS" ]] || errf "==> require 'export PASS='"
    printf "$LUKS_PASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -

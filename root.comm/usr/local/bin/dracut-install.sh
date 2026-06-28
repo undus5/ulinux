@@ -4,8 +4,11 @@ set -e
 
 kver="$1"
 dest="$2"
+
+[[ -n "$kver" ]] || kver=$(ls -1 /usr/lib/modules | tail -n 1)
 kimg="/usr/lib/modules/${kver}/vmlinuz"
-[[ -f "$kimg" ]] || exit 1
+[[ -f $kimg ]] || kimg=/boot/vmlinuz-${kver} # ubuntu
+[[ -f $kimg ]] || exit 1
 
 dracut-install() {
     local stub_dir="$1"

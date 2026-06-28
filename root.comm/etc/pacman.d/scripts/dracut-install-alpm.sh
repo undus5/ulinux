@@ -14,6 +14,6 @@ while read -r line; do
         kver="${kver%'/pkgbase'}"
 
         echo "--> Building initramfs for $pkgbase ($kver)"
-        /etc/kernel/install.d/dracut-install.sh "$kver"
+        /usr/local/bin/dracut-install.sh "$kver"
     fi
 done

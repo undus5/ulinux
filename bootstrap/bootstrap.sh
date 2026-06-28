@@ -33,8 +33,7 @@ test_empty_dir() {
 }
 
 vfs_mount() {
-   local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
-   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
+   [[ -n "$ROOT_FS" ]] || errf "==> \$ROOT_FS undefined"
    for DIR in dev proc run sys; do
       findmnt $ROOT_FS/$DIR &>/dev/null || \
          mount --mkdir --rbind --make-rslave /$DIR $ROOT_FS/$DIR
@@ -42,15 +41,14 @@ vfs_mount() {
 }
 
 vfs_umount() {
-   local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
-   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
+   [[ -n "$ROOT_FS" ]] || errf "==> \$ROOT_FS undefined"
    for DIR in dev proc run sys; do
       findmnt $ROOT_FS/$DIR &>/dev/null && umount -R $ROOT_FS/$DIR
    done
 }
 
 vfs_chroot() {
-   local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
    [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
    if findmnt $ROOT_FS/dev &>/dev/null; then
       chroot $ROOT_FS $@ || true
@@ -64,7 +62,7 @@ vfs_chroot() {
 # }
 
 bootstrap_post_archlinux() {
-   local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
    [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
    # archlinux locales
    if [[ -e ${ROOT_FS}/usr/bin/locale-gen ]]; then
@@ -80,7 +78,7 @@ bootstrap_post_archlinux() {
 }
 
 bootstrap_post_ubuntu() {
-   local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
    [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
    # ubuntu is such a mess
    if [[ "$BASE_PKGS" =~ "linux-generic" ]]; then
@@ -98,7 +96,7 @@ bootstrap_post_ubuntu() {
 }
 
 bootstrap_post() {
-   local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
    [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
    systemctl --root $ROOT_FS disable getty@.service
    systemctl --root $ROOT_FS enable kmsconvt@.service
@@ -109,10 +107,12 @@ bootstrap_post() {
 
 case "$SUB_CMD" in
    bootlive)
-      EMPTY_DIR=$(test_empty_dir $ROOT_FS)
+      EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
       [[ -n "$EMPTY_DIR" ]] || errf "==> root.fs not empty: $ROOT_FS"
 
+      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_mount
       bootstrap_rootfs $ROOT_FS $BASE_PKGS
+      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
 
       cp -rfP ${PROJ_DIR}/root.comm/* ${ROOT_FS}/
       echo "==> copied 'root.comm/*' to 'root.fs'"
@@ -120,31 +120,38 @@ case "$SUB_CMD" in
       cp -rfP ${PROJ_DIR}/root.live/* ${ROOT_FS}/
       echo "==> copied 'root.live/*' to 'root.fs'"
 
-      cp -rfP ${PROJ_DIR} ${ROOT_FS}/root/
-      echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
-
-      mkdir -p ${ROOT_FS}/root/.config
-      cp -rfP ${PROJ_DIR}/home.desk/_config/nvim ${ROOT_FS}/root/.config/
-      echo "==> copied 'home.desk/_config/nvim' to 'root.fs/root/.config/nvim'"
-
-      ln -sf .config/nvim/vimrc ${ROOT_FS}/root/.vimrc
-      echo "==> linked 'root.fs/.config/nvim/vimrc' to 'root.fs/root/.vimrc'"
-
       bootstrap_post_archlinux
       bootstrap_post_ubuntu
       bootstrap_post
 
-      echo "==> running dracut installation ... "
       vfs_mount
       vfs_chroot bash -c 'echo "root:live" | /sbin/chpasswd'
+      echo "==> root password is set to 'live'"
+      echo "==> running dracut installation ... "
       vfs_chroot /usr/local/bin/dracut-live-install.sh
       vfs_umount
+
+      cp -rfP ${PROJ_DIR} ${ROOT_FS}/root/
+      echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
+
+      mkdir -p ${ROOT_FS}/root/.config
+      cp -rfP ${PROJ_DIR}/udot/nvim ${ROOT_FS}/root/.config/
+      echo "==> copied 'udot/nvim' to 'root.fs/root/.config/nvim'"
+
+      ln -sf .config/nvim/vimrc ${ROOT_FS}/root/.vimrc
+      echo "==> linked 'root.fs/.config/nvim/vimrc' to 'root.fs/root/.vimrc'"
       ;;
    bootdesk)
-      EMPTY_DIR=$(test_empty_dir $ROOT_FS)
+      EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
       [[ -n "$EMPTY_DIR" ]] || errf "==> root.fs not empty: $ROOT_FS"
 
+      [[ -n "$ROOTPASS" ]] || errf "==> require 'export ROOTPASS='"
+      [[ -n "$USERNAME" ]] || errf "==> require 'export USERNAME='"
+      [[ -n "$USERPASS" ]] || errf "==> require 'export USERPASS='"
+
+      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_mount
       bootstrap_rootfs $ROOT_FS $DESK_PKGS
+      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
 
       cp -rfP ${PROJ_DIR}/root.comm/* ${ROOT_FS}/
       echo "==> copied 'root.comm/*' to 'root.fs'"
@@ -152,19 +159,23 @@ case "$SUB_CMD" in
       cp -rfP ${PROJ_DIR}/root.desk/* ${ROOT_FS}/
       echo "==> copied 'root.desk/*' to 'root.fs'"
 
-      # archlinux /root/.bashrc
-      if [[ ! -e ${ROOT_FS}/root/.bashrc ]]; then
-         cp -rfP ${ROOT_FS}/etc/skel/.* ${ROOT_FS}/root/
-         echo "==> copied 'root.fs/etc/skel/*' to 'root.fs/root/'"
-      fi
-
+      bootstrap_post_archlinux
+      bootstrap_post_ubuntu
       bootstrap_post
 
-      echo "==> next:"
-      echo ">(root)# $(basename $0) chroot <root.fs>"
-      echo ">(root)# useradd -m -U -G wheel,seat user1"
-      echo ">(root)# passwd user1"
-      echo ">(root)# passwd root"
+      vfs_mount
+      vfs_chroot bash -c 'echo "root:${ROOTPASS}" | /sbin/chpasswd'
+      echo "==> set root password"
+      vfs_chroot useradd -m -U -G wheel,seat $USERNAME
+      echo "==> created user '$USERNAME'"
+      vfs_chroot bash -c 'echo "${USERNAME}:${USERPASS}" | /sbin/chpasswd'
+      echo "==> set user password"
+      echo "==> running dracut installation ... "
+      vfs_chroot /usr/local/bin/dracut-install.sh
+      vfs_umount
+
+      cp -rfP ${PROJ_DIR} ${ROOT_FS}/root/
+      echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
       ;;
    chroot)
       shift; shift;

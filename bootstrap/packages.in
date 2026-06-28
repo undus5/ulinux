@@ -7,9 +7,9 @@
 # common package names
 
 COMM_PKGS=" kbd bash bash-completion util-linux coreutils "
-COMM_PKGS+=" e2fsprogs btrfs-progs parted cryptsetup "
+COMM_PKGS+=" e2fsprogs btrfs-progs dosfstools parted cryptsetup "
 COMM_PKGS+=" less gawk sed man-db tzdata fontconfig curl neovim "
-COMM_PKGS+=" systemd dracut kmscon seatd "
+COMM_PKGS+=" systemd dracut kmscon seatd plymouth "
 
 COMM_DESK_PKGS=" sway swaylock swaybg labwc wl-clipboard mako fuzzel wmenu "
 COMM_DESK_PKGS+=" xdg-desktop-portal-gtk grim kanshi pavucontrol "
@@ -26,7 +26,8 @@ FEDORA_BASE_PKGS+=" procps-ng iputils filesystem "
 FEDORA_BASE_PKGS+=" systemd-resolved systemd-networkd zram-generator "
 FEDORA_BASE_PKGS+=" dracut-live kmscon-freetype shadow-utils iproute "
 FEDORA_BASE_PKGS+=" vim-minimal vim-default-editor openssh-clients xorriso "
-FEDORA_BASE_PKGS+=" glibc-all-langpacks jetbrains-mono-nl-fonts "
+FEDORA_BASE_PKGS+=" glibc-all-langpacks glibc-gconv-extra "
+FEDORA_BASE_PKGS+=" jetbrains-mono-nl-fonts "
 FEDORA_BASE_PKGS+=" dnf5 dnf5-plugins kernel audit rootfiles "
 
 FEDORA_DESK_PKGS="${FEDORA_BASE_PKGS} ${COMM_DESK_PKGS}"

@@ -12,5 +12,4 @@ kimg="$4"
 [[ "$cmd" == "add" ]] || exit 0
 [[ -f $kimg ]] || exit 1
 
-self_dir=$(dirname $(realpath ${BASH_SOURCE[0]}))
-${self_dir}/dracut-install.sh "$kver"
+/usr/local/bin/dracut-install.sh "$kver"
