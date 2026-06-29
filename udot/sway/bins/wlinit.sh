@@ -7,18 +7,18 @@ bgr() { nohup "${@}" &>/dev/null & }
 chkcmd kanshi && ! chksrv kanshi && bgr kanshi
 chkcmd fcitx5 && ! chksrv fcitx5 && bgr fcitx5 -d -r
 
-polkit_name=polkit-mate-authentication-agent-1
-polkit_arch=/usr/lib/mate-polkit/${polkit_name}
-polkit_fedora=/usr/libexec/${polkit_name}
-[[ -f "${polkit_arch}" ]] && polkit_exec="${polkit_arch}"
-[[ -f "${polkit_fedora}" ]] && polkit_exec="${polkit_fedora}"
-chkcmd ${polkit_exec} && ! chksrv ${polkit_name} && bgr ${polkit_exec}
+POLKIT_NAME=polkit-mate-authentication-agent-1
+POLKIT_FEDORA=/usr/libexec/${POLKIT_NAME}
+POLKIT_ARCHLINUX=/usr/lib/mate-polkit/${POLKIT_NAME}
+[[ -f $POLKIT_ARCHLINUX ]] && POLKIT_EXEC=$POLKIT_ARCHLINUX
+[[ -f $POLKIT_FEDORA ]] && POLKIT_EXEC=$POLKIT_FEDORA
+chkcmd $POLKIT_EXEC && ! chksrv $POLKIT_NAME && bgr $POLKIT_EXEC
 
 gsettings set org.gnome.desktop.privacy remember-recent-files false
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
 gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark
 
-if [[ -n "${SWAYSOCK}" && -d ~/.icons/Qogir-Dark ]]; then
+if [[ -n "$SWAYSOCK" && -d ~/.icons/Qogir-Dark ]]; then
     swaymsg seat seat0 xcursor_theme Qogir-Dark 32
 fi
 
@@ -26,20 +26,30 @@ if [[ -d ~/.icons/Qogir-Dark ]]; then
     gsettings set org.gnome.desktop.interface icon-theme Qogir-Dark
 fi
 
-bgname=~/Pictures/wallpaper
-bgfile=${bgname}.png
-[[ -f "${bgfile}" ]] || bgfile=${bgname}.jpg
-[[ -f "${bgfile}" ]] || bgfile=${bgname}.webp
-if [[ -f "${bgfile}" ]]; then
-    chksrv swaybg && pidof swaybg | xargs kill -9
-    bgr swaybg -m fill -i "${bgfile}"
+BG_FILE=$(find ~/Pictures/ -maxdepth 1 -type f -name 'wallpaper-*.png')
+BG_FILE=$(echo $BG_FILE | head -n 1)
+if [[ ! -f $BG_FILE ]]; then
+   BG_FILE=$(find ~/.config/sway/ -maxdepth 1 -type f -name 'wallpaper-*.png')
+   BG_FILE=$(echo $BG_FILE | head -n 1)
+fi
+if [[ -f $BG_FILE ]]; then
+   BG_NAME=$(basename $BG_FILE)
+   BG_NAME=${BG_NAME%.*}
+   BG_MODE=${BG_NAME#wallpaper-}
+   MODES=( stretch fill fit center tile )
+   MODE=
+   for M in ${MODES[@]}; do
+      [[ "$BG_MODE" == "$M" ]] && MODE=$M
+   done
+   if [[ -n "$MODE" ]]; then
+      chksrv swaybg && pidof swaybg | xargs kill -9
+      bgr swaybg --mode $MODE --image "$BG_FILE"
+   fi
 fi
 
-# put in bashrc
-# [[ -z "$LS_COLORS" ]] && eval $(dircolors -b)
+### ~/.bashrc
 # https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland
 # export QT_IM_MODULE=fcitx
 # export XMODIFIERS=@im=fcitx
 # [[ -z "$WAYLAND_DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]] && exec sway
 # [[ -z "$WAYLAND_DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]] && kmscon-launch-gui sway
-
