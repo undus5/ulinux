@@ -1,5 +1,3 @@
 # labwc autostart
 
-command -v swaybg &>/dev/null && swaybg -c 3f2b2b -m fill &
-command -v wlstart.sh &>/dev/null && wlstart.sh
-
+command -v wlinit.sh &>/dev/null && wlinit.sh
