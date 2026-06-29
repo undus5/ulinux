@@ -61,7 +61,7 @@ prepare_iso() {
 
 build_iso() {
    local ISO_D=$(test_empty_dir $ISO_DIR)
-   [[ -z "$ISO_D" ]] || errf "==> iso.d is empty: $ISO_DIR"
+   [[ -z "$ISO_D" ]] || prepare_iso
 
    source ${ISO_DIR}/boot/os-release
    local NAME=$ID; [[ -n "$VERSION_ID" ]] && NAME+="-${VERSION_ID}"
