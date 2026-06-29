@@ -5,7 +5,7 @@ set -e
 errf() { printf "$@\n" >&2; exit 1; }
 
 if [[ "$1" == "-h" ]]; then
-   echo "==> require 'export DISK=; export ROOTPASS='"; exit 0
+   echo "==> require 'export DISK=; export LUKSPASS='"; exit 0
 fi
 
 [[ "$EUID" == 0 ]] || errf "==> need root priviledge"
@@ -13,8 +13,8 @@ fi
 DISK_BLOCK=$DISK
 [[ -n "$DISK_BLOCK" ]] || errf "==> require 'export DISK='"
 [[ -b $DISK_BLOCK ]] || errf "==> not a block device: $DISK_BLOCK"
-LUKS_PASS=$ROOTPASS
-[[ -n "$LUKS_PASS" ]] || errf "==> require 'export ROOTPASS='"
+LUKS_PASS=$LUKSPASS
+[[ -n "$LUKS_PASS" ]] || errf "==> require 'export LUKSPASS='"
 
 EFI_LABEL="EFIPART"
 EFI_BLOCK=/dev/disk/by-partlabel/${EFI_LABEL}
@@ -29,7 +29,7 @@ parted -s $DISK_BLOCK \
     mkpart $ROOT_LABEL btrfs 1025MiB 100% \
     type 2 $ROOT_TYPE_UUID
 
-mkfs.fat -F32 $EFI_BLOCK
+mkfs.fat -F 32 -n "EFIFAT" $EFI_BLOCK
 
 MAP_NAME=root
 LUKS_BLOCK=/dev/mapper/${MAP_NAME}
