@@ -6,7 +6,10 @@
         <item label="Terminal">
             <action name="Execute" command="wlctl.sh terminal" />
         </item>
-        <item label="Wmenu">
+        <item label="App Launcher">
+            <action name="Execute" command="wlctl.sh app-launcher" />
+        </item>
+        <item label="Dmenu">
             <action name="Execute" command="wlctl.sh dynamic-menu" />
         </item>
         <item label="Reconfigure">

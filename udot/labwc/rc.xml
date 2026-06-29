@@ -28,20 +28,23 @@
         <keybind key="W-Return">
             <action name="Execute" command="wlctl.sh terminal" />
         </keybind>
+        <keybind key="W-a">
+            <action name="Execute" command="wlctl.sh app-launcher" />
+        </keybind>
         <keybind key="W-d">
             <action name="Execute" command="wlctl.sh dynamic-menu" />
         </keybind>
         <keybind key="W-comma">
-            <action name="Execute" command="wlctl.sh vol-down" />
+            <action name="Execute" command="wlctl.sh vol-down 3" />
         </keybind>
         <keybind key="W-period">
-            <action name="Execute" command="wlctl.sh vol-up" />
+            <action name="Execute" command="wlctl.sh vol-up 3" />
         </keybind>
         <keybind key="W-slash">
             <action name="Execute" command="wlctl.sh mute-toggle-speaker" />
         </keybind>
         <keybind key="W-S-slash">
-            <action name="Execute" command="wlctl.sh mute-toggle-mic" />
+            <action name="Execute" command="wlctl.sh sink-toggle" />
         </keybind>
     </keyboard>
 

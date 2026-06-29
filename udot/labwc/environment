@@ -1,10 +1,7 @@
-# labwc environment
-
 # read `man 7 xkeyboard-config` for a complete reference.
 # XKB_DEFAULT_OPTIONS=ctrl:nocaps,altwin:swap_alt_win
 XKB_DEFAULT_OPTIONS=ctrl:nocaps
 
 # cursor theme locations: ~/.local/share/icons, ~/.icons/, /usr/share/icons/
-# XCURSOR_THEME=Bibata-Modern-Ice
-# XCURSOR_SIZE=28
-
+# XCURSOR_THEME=Qogir-Dark
+# XCURSOR_SIZE=32
