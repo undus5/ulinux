@@ -4,7 +4,7 @@ Requires=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/bash /usr/local/bin/ufwmark.sh
+ExecStart=/usr/bin/bash /usr/local/bin/fwmark.sh
 RemainAfterExit=yes
 
 [Install]
