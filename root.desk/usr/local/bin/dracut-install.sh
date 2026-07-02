@@ -15,7 +15,9 @@ dracut-install() {
     local vmlinuz=${stub_dir}/vmlinuz
     local initrd=${stub_dir}/initrd
     install -Dm0644 "$kimg" "$vmlinuz"
+    echo "==> installed '${vmlinuz}' (${kver})"
     dracut --force --hostonly --no-hostonly-cmdline --kver "$kver" "$initrd"
+    echo "==> installed '${initrd}' (${kver})"
 }
 
 [[ -d "$dest" ]] && dracut-install "$dest" && exit 0
