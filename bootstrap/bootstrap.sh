@@ -33,20 +33,19 @@ test_empty_dir() {
 }
 
 vfs_mount() {
-   [[ -n "$ROOT_FS" ]] || errf "==> \$ROOT_FS undefined"
-   for DIR in dev proc run sys; do
-      if [[ "$DIR" == "proc" ]]; then
-         findmnt $ROOT_FS/proc &>/dev/null || \
-            mount --mkdir --types proc /proc $ROOT_FS/proc
-      else
-         findmnt $ROOT_FS/$DIR &>/dev/null || \
-            mount --mkdir --rbind --make-rslave /$DIR $ROOT_FS/$DIR
-      fi
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
+   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
+   findmnt $ROOT_FS/proc &>/dev/null || \
+      mount --mkdir --types proc /proc $ROOT_FS/proc
+   for DIR in dev run sys; do
+      findmnt $ROOT_FS/$DIR &>/dev/null || \
+         mount --mkdir --rbind --make-rslave /$DIR $ROOT_FS/$DIR
    done
 }
 
 vfs_umount() {
-   [[ -n "$ROOT_FS" ]] || errf "==> \$ROOT_FS undefined"
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
+   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
    for DIR in dev proc run sys; do
       findmnt $ROOT_FS/$DIR &>/dev/null && umount -R $ROOT_FS/$DIR
    done
@@ -136,7 +135,7 @@ case "$SUB_CMD" in
       bootstrap_post
 
       vfs_mount
-      vfs_chroot bash -c 'echo "root:live" | /sbin/chpasswd'
+      echo "root:live" | vfs_chroot /sbin/chpasswd
       echo "==> root password is set to 'live'"
       echo "==> running dracut installation ... "
       vfs_chroot /usr/local/bin/dracut-live-install.sh
@@ -173,11 +172,11 @@ case "$SUB_CMD" in
       bootstrap_post
 
       vfs_mount
-      vfs_chroot bash -c 'echo "root:${ROOTPASS}" | /sbin/chpasswd'
+      echo "root:${ROOTPASS}" | vfs_chroot /sbin/chpasswd
       echo "==> set root password"
       vfs_chroot useradd -m -U -G wheel,seat $USERNAME
       echo "==> created user '$USERNAME'"
-      vfs_chroot bash -c 'echo "${USERNAME}:${USERPASS}" | /sbin/chpasswd'
+      echo "${USERNAME}:${USERPASS}" | vfs_chroot /sbin/chpasswd
       echo "==> set user password"
       echo "==> running dracut installation ... "
       vfs_chroot /usr/local/bin/dracut-install.sh
@@ -190,6 +189,9 @@ case "$SUB_CMD" in
       shift; shift;
       vfs_mount
       vfs_chroot $@
+      vfs_umount
+      ;;
+   umount)
       vfs_umount
       ;;
    *)

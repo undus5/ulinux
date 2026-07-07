@@ -10,11 +10,9 @@ fi
 
 [[ "$EUID" == 0 ]] || errf "==> need root priviledge"
 
-DISK_BLOCK=$DISK
-[[ -n "$DISK_BLOCK" ]] || errf "==> require 'export DISK='"
-[[ -b $DISK_BLOCK ]] || errf "==> not a block device: $DISK_BLOCK"
-LUKS_PASS=$LUKSPASS
-[[ -n "$LUKS_PASS" ]] || errf "==> require 'export LUKSPASS='"
+[[ -n "$DISK" ]] || errf "==> require 'export DISK='"
+[[ -b $DISK ]] || errf "==> not a block device: $DISK"
+[[ -n "$LUKSPASS" ]] || errf "==> require 'export LUKSPASS='"
 
 EFI_LABEL="EFIPART"
 EFI_BLOCK=/dev/disk/by-partlabel/${EFI_LABEL}
@@ -22,7 +20,7 @@ ROOT_LABEL="ROOTPART"
 ROOT_BLOCK=/dev/disk/by-partlabel/${ROOT_LABEL}
 
 ROOT_TYPE_UUID="4f68bce3-e8cd-4db1-96e7-fbcaf984b709"
-parted -s $DISK_BLOCK \
+parted -s $DISK \
     mklabel gpt \
     mkpart $EFI_LABEL fat32 1MiB 1025MiB \
     set 1 esp on \
@@ -34,8 +32,8 @@ mkfs.fat -F 32 -n "EFIFAT" $EFI_BLOCK
 MAP_NAME=root
 LUKS_BLOCK=/dev/mapper/${MAP_NAME}
 
-printf "$LUKS_PASS" | cryptsetup luksFormat $ROOT_BLOCK -d -
-printf "$LUKS_PASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -
+printf "$LUKSPASS" | cryptsetup luksFormat $ROOT_BLOCK -d -
+printf "$LUKSPASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -
 
 mkfs.btrfs $LUKS_BLOCK
 mount $LUKS_BLOCK /mnt
