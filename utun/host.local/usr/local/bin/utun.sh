@@ -3,25 +3,18 @@
 set -e
 
 errf() { printf "$@\n" >&2; exit 1; }
+get_help() { errf "==> usage: $(basename $0) <on|off|switch|test>"; }
 
-if [[ -z "$1" || "$1" == "-h" ]]; then
-   errf "==> usage: $(basename $0) <testx|test>"
-fi
+[[ -z "$1" || "$1" == "-h" ]] && get_help
 
 ################################################################################
 
-# https://docs.x.com/make-your-first-request
-URL="https://api.x.com/2/users/by/username/xdevelopers"
-
-if [[ "$1" == "testx" ]]; then
-   echo "==> testing with proxy '$URL'"
-   curl -sL -x http://127.0.0.1:8080 -U user:pass $URL | jq '.status'
-   exit 0
-fi
+URL="https://google.com/generate_204"
 
 if [[ "$1" == "test" ]]; then
    echo "==> testing '$URL'"
-   curl -sL $URL | jq '.status'
+   curl -sL -w "%{http_code}" -o /dev/null $URL
+   printf "\n"
    exit 0
 fi
 
@@ -49,12 +42,14 @@ fi
 
 ################################################################################
 
+[[ "$1" == "switch" ]] || get_help
+
 srv_name=${1}
 [[ -n "${srv_name}" ]] || errf "Usage: $(basename $0) <srv_name>"
 
 cd /usr/local/etc/
-naive_conf=./utun-pool/naiveproxy-${srv_name}.json
-gostu_conf=./utun-pool/gost-uot-${srv_name}.yaml
+naive_conf=./utun.d/naiveproxy-${srv_name}.json
+gostu_conf=./utun.d/gost-uot-${srv_name}.yaml
 
 [[ -f $naive_conf ]] || errf "file not found: $(realpath $naive_conf)"
 [[ -f $gostu_conf ]] || errf "file not found: $(realpath $gostu_conf)"

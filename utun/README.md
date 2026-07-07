@@ -5,7 +5,7 @@
 Create system user for running services:
 
 ```
-(root)# useradd -r -m -U -s /usr/bin/nologin tunn
+(root)# useradd -r -m -U -s /usr/bin/nologin utun
 ```
 
 -r, --system\
