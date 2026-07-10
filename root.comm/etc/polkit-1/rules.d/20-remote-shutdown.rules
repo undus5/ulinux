@@ -1,4 +1,4 @@
-/* allow regular user poweroff reboot */
+/* fix kmscon, allow regular user poweroff reboot */
 polkit.addRule(function(action, subject) {
    if ((action.id == "org.freedesktop.login1.power-off" ||
         action.id == "org.freedesktop.login1.power-off-multiple-sessions" ||
