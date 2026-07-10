@@ -15,15 +15,15 @@ POLKIT_ARCHLINUX=/usr/lib/mate-polkit/${POLKIT_NAME}
 chkcmd $POLKIT_EXEC && ! chksrv $POLKIT_NAME && bgr $POLKIT_EXEC
 
 gsettings set org.gnome.desktop.privacy remember-recent-files false
-gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark
 
-if [[ -n "$SWAYSOCK" && -d ~/.icons/Qogir-Dark ]]; then
-    swaymsg seat seat0 xcursor_theme Qogir-Dark 32
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+
+if [[ -d /usr/share/icons/Papirus-Dark ]]; then
+    gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
 fi
 
-if [[ -d ~/.icons/Qogir-Dark ]]; then
-    gsettings set org.gnome.desktop.interface icon-theme Qogir-Dark
+if [[ -n "$SWAYSOCK" && -d /usr/share/icons/breeze_cursors ]]; then
+    swaymsg seat seat0 xcursor_theme breeze_cursors 32
 fi
 
 # https://www.toptal.com/designers/subtlepatterns/
