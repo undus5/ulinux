@@ -6,16 +6,16 @@
 
 # common package names
 
-COMM_PKGS=" kbd bash bash-completion util-linux coreutils "
+COMM_PKGS=" kbd bash bash-completion util-linux coreutils usbutils "
 COMM_PKGS+=" e2fsprogs btrfs-progs dosfstools parted cryptsetup "
 COMM_PKGS+=" less gawk sed man-db tzdata fontconfig curl neovim "
-COMM_PKGS+=" systemd dracut kmscon seatd "
+COMM_PKGS+=" systemd dracut kmscon seatd nftables rsync arp-scan "
 
 COMM_DESK_PKGS=" sway swaylock swaybg labwc wl-clipboard mako fuzzel wmenu "
 COMM_DESK_PKGS+=" xdg-desktop-portal-gtk grim kanshi pavucontrol wob "
 COMM_DESK_PKGS+=" nautilus gvfs ifuse 7zip hicolor-icon-theme xdg-user-dirs "
 COMM_DESK_PKGS+=" pipewire swayimg mpv zathura zathura-pdf-poppler "
-COMM_DESK_PKGS+=" foot alacritty mate-polkit fcitx5 linux-firmware "
+COMM_DESK_PKGS+=" foot alacritty mate-polkit linux-firmware "
 
 ################################################################################
 # Fedora
@@ -27,12 +27,10 @@ FEDORA_BASE_PKGS+=" systemd-resolved systemd-networkd zram-generator "
 FEDORA_BASE_PKGS+=" dracut-live kmscon-freetype shadow-utils iproute "
 FEDORA_BASE_PKGS+=" vim-minimal vim-default-editor openssh-clients xorriso "
 FEDORA_BASE_PKGS+=" glibc-all-langpacks glibc-gconv-extra "
-FEDORA_BASE_PKGS+=" jetbrains-mono-nl-fonts "
+FEDORA_BASE_PKGS+=" default-fonts jetbrains-mono-nl-fonts "
 FEDORA_BASE_PKGS+=" dnf5 dnf5-plugins kernel audit rootfiles "
 
 FEDORA_DESK_PKGS="${FEDORA_BASE_PKGS} ${COMM_DESK_PKGS}"
-FEDORA_DESK_PKGS+=" google-noto-fonts-all google-noto-color-emoji-fonts "
-FEDORA_DESK_PKGS+=" google-noto-sans-cjk-fonts google-noto-serif-cjk-fonts "
 FEDORA_DESK_PKGS+=" gvfs-mtp gvfs-gphoto2 gvfs-afc qt6pas "
 FEDORA_DESK_PKGS+=" fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime "
 FEDORA_DESK_PKGS+=" pipewire-utils openssh-server "

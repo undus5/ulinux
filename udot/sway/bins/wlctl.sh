@@ -173,11 +173,11 @@ lock-screen() {
       --scaling solid_color
 }
 
-lock-suspend() {
-   lock-screen
-   sleep 0.2
-   systemctl suspend
-}
+# lock-suspend() {
+#    lock-screen
+#    sleep 0.2
+#    systemctl suspend
+# }
 
 #################################################################################
 # screenshot
