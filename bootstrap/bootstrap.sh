@@ -126,8 +126,8 @@ case "$SUB_CMD" in
       bootstrap_rootfs $ROOT_FS $BASE_PKGS
       [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
 
-      cp -rfP ${PROJ_DIR}/root.comm/* ${ROOT_FS}/
-      echo "==> copied 'root.comm/*' to 'root.fs'"
+      cp -rfP ${PROJ_DIR}/root.d/* ${ROOT_FS}/
+      echo "==> copied 'root.d/*' to 'root.fs'"
 
       cp -rfP ${PROJ_DIR}/root.live/* ${ROOT_FS}/
       echo "==> copied 'root.live/*' to 'root.fs'"
@@ -163,8 +163,8 @@ case "$SUB_CMD" in
       bootstrap_rootfs $ROOT_FS $DESK_PKGS
       [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
 
-      cp -rfP ${PROJ_DIR}/root.comm/* ${ROOT_FS}/
-      echo "==> copied 'root.comm/*' to 'root.fs'"
+      cp -rfP ${PROJ_DIR}/root.d/* ${ROOT_FS}/
+      echo "==> copied 'root.d/*' to 'root.fs'"
 
       cp -rfP ${PROJ_DIR}/root.desk/* ${ROOT_FS}/
       echo "==> copied 'root.desk/*' to 'root.fs'"

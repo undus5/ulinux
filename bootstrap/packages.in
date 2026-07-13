@@ -23,13 +23,13 @@ COMM_DESK_PKGS+=" nftables rsync arp-scan "
 ################################################################################
 
 FEDORA_BASE_PKGS="$COMM_PKGS"
-FEDORA_BASE_PKGS+=" procps-ng iputils filesystem "
+FEDORA_BASE_PKGS+=" procps-ng iputils filesystem rootfiles "
 FEDORA_BASE_PKGS+=" systemd-resolved systemd-networkd zram-generator "
 FEDORA_BASE_PKGS+=" dracut-live kmscon-freetype shadow-utils iproute "
 FEDORA_BASE_PKGS+=" vim-minimal vim-default-editor openssh-clients xorriso "
 FEDORA_BASE_PKGS+=" glibc-all-langpacks glibc-gconv-extra "
 FEDORA_BASE_PKGS+=" default-fonts jetbrains-mono-nl-fonts "
-FEDORA_BASE_PKGS+=" dnf5 dnf5-plugins kernel audit rootfiles "
+FEDORA_BASE_PKGS+=" dnf5 dnf5-plugins kernel kernel-modules-extra audit "
 
 FEDORA_DESK_PKGS="${FEDORA_BASE_PKGS} ${COMM_DESK_PKGS}"
 FEDORA_DESK_PKGS+=" gvfs-mtp gvfs-gphoto2 gvfs-afc qt6pas "
