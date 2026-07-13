@@ -44,7 +44,7 @@ fi
 
 [[ "$1" == "switch" ]] || get_help
 
-srv_name=${1}
+srv_name="$2"
 [[ -n "${srv_name}" ]] || errf "Usage: $(basename $0) <srv_name>"
 
 cd /usr/local/etc/

@@ -87,7 +87,7 @@ bootstrap_post() {
       vfs_chroot paccache -rk0
       vfs_umount
       # /root/.bashrc
-      cp -rfP ${ROOT_FS}/etc/skel/.* ${ROOT_FS}/root/
+      cp -rP ${ROOT_FS}/etc/skel/.* ${ROOT_FS}/root/
       echo "==> copied 'root.fs/etc/skel/*' to 'root.fs/root/'"
    fi
    #############################################################################
@@ -117,73 +117,60 @@ bootstrap_post() {
    systemctl --root $ROOT_FS enable systemd-timesyncd.service
 }
 
+bootstrap_os() {
+   EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
+   [[ -n "$EMPTY_DIR" ]] || errf "==> root.fs not empty: $ROOT_FS"
+
+   [[ -n "$PASS" ]] || PASS="pass"
+
+   [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_mount
+   local PKGS="$1"
+   bootstrap_rootfs $ROOT_FS $PKGS
+   [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
+
+   cp -rP ${SELF_DIR}/root.d/* ${ROOT_FS}/
+   echo "==> copied 'root.d/*' to 'root.fs'"
+
+   bootstrap_post
+
+   cp -rP ${PROJ_DIR} ${ROOT_FS}/root/
+   echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
+
+   vfs_mount
+
+   echo "root:${PASS}" | vfs_chroot /sbin/chpasswd
+   echo "==> set password for 'root'"
+
+   vfs_chroot useradd -m -U -G wheel,seat u
+   echo "==> created regular user 'u'"
+   echo "u:${PASS}" | vfs_chroot /sbin/chpasswd
+   echo "==> set password for 'u'"
+
+   vfs_chroot useradd -r -m -U -s /usr/bin/nologin i
+   echo "==> created system user 'i'"
+
+   vfs_chroot cp -rP /root/hikerlinux /home/u/
+   vfs_chroot chown -R u:u /home/u/hikerlinux
+   vfs_chroot runuser - u -c '~/hikerlinux/udot/udot.sh install nvim'
+
+   mkdir -p /root/.config
+   ln -sf /home/u/.config/nvim /root/.config/nvim
+   echo "==> linked /root/.config/nvim"
+   ln -sf /root/.config/nvim/vimrc /root/.vimrc
+   echo "==> linked /root/.vimrc"
+
+   echo "==> generating initramfs image ... "
+   vfs_chroot /usr/local/bin/dracut-install.sh
+
+   vfs_umount
+}
+
 case "$SUB_CMD" in
-   bootlive)
-      EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
-      [[ -n "$EMPTY_DIR" ]] || errf "==> root.fs not empty: $ROOT_FS"
-
-      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_mount
-      bootstrap_rootfs $ROOT_FS $BASE_PKGS
-      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
-
-      cp -rfP ${PROJ_DIR}/root.d/* ${ROOT_FS}/
-      echo "==> copied 'root.d/*' to 'root.fs'"
-
-      cp -rfP ${PROJ_DIR}/root.live/* ${ROOT_FS}/
-      echo "==> copied 'root.live/*' to 'root.fs'"
-
-      bootstrap_post
-
-      vfs_mount
-      echo "root:live" | vfs_chroot /sbin/chpasswd
-      echo "==> root password is set to 'live'"
-      echo "==> running dracut installation ... "
-      vfs_chroot /usr/local/bin/dracut-live-install.sh
-      vfs_umount
-
-      cp -rfP ${PROJ_DIR} ${ROOT_FS}/root/
-      echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
-
-      mkdir -p ${ROOT_FS}/root/.config
-      cp -rfP ${PROJ_DIR}/udot/nvim ${ROOT_FS}/root/.config/
-      echo "==> copied 'udot/nvim' to 'root.fs/root/.config/nvim'"
-
-      ln -sf .config/nvim/vimrc ${ROOT_FS}/root/.vimrc
-      echo "==> linked 'root.fs/.config/nvim/vimrc' to 'root.fs/root/.vimrc'"
+   bootbase)
+      bootstrap_os $BASE_PKGS
       ;;
    bootdesk)
-      EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
-      [[ -n "$EMPTY_DIR" ]] || errf "==> root.fs not empty: $ROOT_FS"
-
-      [[ -n "$PASS" ]] || errf "==> require 'export PASS='"
-
-      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_mount
-      bootstrap_rootfs $ROOT_FS $DESK_PKGS
-      [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_umount
-
-      cp -rfP ${PROJ_DIR}/root.d/* ${ROOT_FS}/
-      echo "==> copied 'root.d/*' to 'root.fs'"
-
-      cp -rfP ${PROJ_DIR}/root.desk/* ${ROOT_FS}/
-      echo "==> copied 'root.desk/*' to 'root.fs'"
-
-      bootstrap_post
-
-      vfs_mount
-      echo "root:${PASS}" | vfs_chroot /sbin/chpasswd
-      echo "==> set password for 'root'"
-      vfs_chroot useradd -m -U -G wheel,seat u
-      echo "==> created regular user 'u'"
-      vfs_chroot useradd -r -m -U -s /usr/bin/nologin i
-      echo "==> created system user 'i'"
-      echo "u:pass" | vfs_chroot /sbin/chpasswd
-      echo "==> set password for 'u'"
-      echo "==> running dracut installation ... "
-      vfs_chroot /usr/local/bin/dracut-install.sh
-      vfs_umount
-
-      cp -rfP ${PROJ_DIR} ${ROOT_FS}/root/
-      echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
+      bootstrap_os $DESK_PKGS
       ;;
    chroot)
       shift; shift;

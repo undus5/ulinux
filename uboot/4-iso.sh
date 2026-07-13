@@ -6,14 +6,6 @@ get_help() { echo "==> usage: $(basename $0) <prepare|build> <root.fs>"; }
 if [[ -z "$1" || "$1" == "-h" ]]; then get_help; exit 0; fi
 
 errf() { printf "$@\n" >&2; exit 1; }
-test_empty_dir() {
-   local DIR="$1"
-   if [[ -d "$DIR" ]]; then
-      find $DIR -maxdepth 0 -empty
-   else
-      echo $DIR
-   fi
-}
 
 [[ "$EUID" == 0 ]] || errf "==> need root priviledge"
 
@@ -24,18 +16,65 @@ ROOT_FS=$(realpath $ROOT_FS)
 [[ -d "$ROOT_FS" ]] || errf "==> root.fs not found"
 
 SELF_DIR=$(dirname $(realpath ${BASH_SOURCE[0]}))
-PROJ_DIR=$(dirname $SELF_DIR)
-ISO_SRC=${PROJ_DIR}/iso.d
+ISO_SRC=${SELF_DIR}/iso.d
+ROOT_SRC=${SELF_DIR}/root.live
 WORK_DIR=$(dirname $ROOT_FS)
 ISO_DIR=${WORK_DIR}/$(basename $ROOT_FS).iso.d
 LIVE_IMG_DIR=${ISO_DIR}/LiveOS
 LIVE_IMG=${LIVE_IMG_DIR}/squashfs.img
+
+test_empty_dir() {
+   local DIR="$1"
+   if [[ -d "$DIR" ]]; then
+      find $DIR -maxdepth 0 -empty
+   else
+      echo $DIR
+   fi
+}
+
+vfs_mount() {
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
+   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
+   findmnt $ROOT_FS/proc &>/dev/null || \
+      mount --mkdir --types proc /proc $ROOT_FS/proc
+   for DIR in dev run sys; do
+      findmnt $ROOT_FS/$DIR &>/dev/null || \
+         mount --mkdir --rbind --make-rslave /$DIR $ROOT_FS/$DIR
+   done
+}
+
+vfs_umount() {
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
+   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
+   for DIR in dev proc run sys; do
+      findmnt $ROOT_FS/$DIR &>/dev/null && umount -R $ROOT_FS/$DIR
+   done
+}
+
+vfs_chroot() {
+   local EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
+   [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
+   if findmnt $ROOT_FS/dev &>/dev/null; then
+      chroot $ROOT_FS $@ || true
+   else
+      errf "==> VFS not mounted"
+   fi
+}
 
 prepare_iso() {
    local EMPTY_DIR=$(test_empty_dir $ROOT_FS)
    [[ -z "$EMPTY_DIR" ]] || errf "==> root.fs is empty: $ROOT_FS"
    local ISO_D=$(test_empty_dir $ISO_DIR)
    [[ -n "$ISO_D" ]] || errf "==> iso.d not empty: $ISO_DIR"
+
+   cp -rfP ${ROOT_SRC}/* ${ROOT_FS}/
+   echo "==> copied '$(basename $ROOT_SRC)/*' to 'root.fs'"
+   vfs_mount
+   vfs_chroot dracut-install.sh
+   vfs_chroot bash -c 'command -v dnf &>/dev/null && dnf clean packages'
+   vfs_chroot bash -c 'command -v paccache &>/dev/null && paccache -rk0'
+   vfs_chroot bash -c 'command -v apt &>/dev/null && apt clean'
+   vfs_umount
 
    local K="boot/vmlinuz"
    local RD="boot/initrd"
@@ -49,7 +88,6 @@ prepare_iso() {
    printf "==> copied '$(basename $ROOT_FS)/etc/os-release'"
    printf "to '$(basename $ISO_DIR)/boot/os-release'\n"
 
-   # rm -rf ${ROOT_FS}/var/cache/*
    [[ -d $LIVE_IMG_DIR ]] || mkdir -p $LIVE_IMG_DIR
    [[ -f $LIVE_IMG ]] && rm -f $LIVE_IMG
    echo "==> packing '${LIVE_IMG#$WORK_DIR/}'"
