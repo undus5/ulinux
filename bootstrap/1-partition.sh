@@ -5,14 +5,14 @@ set -e
 errf() { printf "$@\n" >&2; exit 1; }
 
 if [[ "$1" == "-h" ]]; then
-   echo "==> require 'export DISK=; export LUKSPASS='"; exit 0
+   echo "==> require 'export DISK=; export PASS='"; exit 0
 fi
 
 [[ "$EUID" == 0 ]] || errf "==> need root priviledge"
 
 [[ -n "$DISK" ]] || errf "==> require 'export DISK='"
 [[ -b $DISK ]] || errf "==> not a block device: $DISK"
-[[ -n "$LUKSPASS" ]] || errf "==> require 'export LUKSPASS='"
+[[ -n "$PASS" ]] || errf "==> require 'export PASS='"
 
 EFI_LABEL="EFIPART"
 EFI_BLOCK=/dev/disk/by-partlabel/${EFI_LABEL}
@@ -32,8 +32,8 @@ mkfs.fat -F 32 -n "EFIFAT" $EFI_BLOCK
 MAP_NAME=root
 LUKS_BLOCK=/dev/mapper/${MAP_NAME}
 
-printf "$LUKSPASS" | cryptsetup luksFormat $ROOT_BLOCK -d -
-printf "$LUKSPASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -
+printf "$PASS" | cryptsetup luksFormat $ROOT_BLOCK -d -
+printf "$PASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -
 
 mkfs.btrfs $LUKS_BLOCK
 mount $LUKS_BLOCK /mnt

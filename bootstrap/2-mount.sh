@@ -14,8 +14,8 @@ ROOT_LABEL="ROOTPART"
 ROOT_BLOCK=/dev/disk/by-partlabel/${ROOT_LABEL}
 
 if [[ ! -b $LUKS_BLOCK ]]; then
-   [[ -n "$LUKSPASS" ]] || errf "==> require 'export LUKSPASS='"
-   printf "$LUKSPASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -
+   [[ -n "$PASS" ]] || errf "==> require 'export PASS='"
+   printf "$PASS" | cryptsetup open $ROOT_BLOCK $MAP_NAME -d -
 fi
 
 mount -o subvol=@a/@ $LUKS_BLOCK /mnt

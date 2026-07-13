@@ -155,9 +155,7 @@ case "$SUB_CMD" in
       EMPTY_DIR=$(test_empty_dir ${ROOT_FS}/usr)
       [[ -n "$EMPTY_DIR" ]] || errf "==> root.fs not empty: $ROOT_FS"
 
-      [[ -n "$ROOTPASS" ]] || errf "==> require 'export ROOTPASS='"
-      [[ -n "$USERNAME" ]] || errf "==> require 'export USERNAME='"
-      [[ -n "$USERPASS" ]] || errf "==> require 'export USERPASS='"
+      [[ -n "$PASS" ]] || errf "==> require 'export PASS='"
 
       [[ "$BASE_PKGS" =~ "dnf5" ]] && vfs_mount
       bootstrap_rootfs $ROOT_FS $DESK_PKGS
@@ -172,12 +170,14 @@ case "$SUB_CMD" in
       bootstrap_post
 
       vfs_mount
-      echo "root:${ROOTPASS}" | vfs_chroot /sbin/chpasswd
-      echo "==> set root password"
-      vfs_chroot useradd -m -U -G wheel,seat $USERNAME
-      echo "==> created user '$USERNAME'"
-      echo "${USERNAME}:${USERPASS}" | vfs_chroot /sbin/chpasswd
-      echo "==> set user password"
+      echo "root:${PASS}" | vfs_chroot /sbin/chpasswd
+      echo "==> set password for 'root'"
+      vfs_chroot useradd -m -U -G wheel,seat u
+      echo "==> created regular user 'u'"
+      vfs_chroot useradd -r -m -U -s /usr/bin/nologin i
+      echo "==> created system user 'i'"
+      echo "u:pass" | vfs_chroot /sbin/chpasswd
+      echo "==> set password for 'u'"
       echo "==> running dracut installation ... "
       vfs_chroot /usr/local/bin/dracut-install.sh
       vfs_umount
