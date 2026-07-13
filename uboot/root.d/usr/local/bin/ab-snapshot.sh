@@ -42,7 +42,7 @@ echo "==> deleted subvolume '${dstvol}'"
 btrfs subvolume snapshot / $dstvol > /dev/null
 echo "==> created snapshot of '${srcvol}' in '${dstvol}'"
 
-echo "==> modify fstab in '/${dstname}/@'"
+echo "==> updated fstab in '/${dstname}/@'"
 sed -i -r \
     -e "s#/${dstname}#/${srcname}#" \
     -e "s#@${dstname}\s+0#@${srcname}   0#" \
