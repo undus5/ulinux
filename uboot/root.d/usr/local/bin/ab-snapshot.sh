@@ -20,7 +20,10 @@ case "$1" in
         ;;
 esac
 
-dstvol_alert="==> abort: you are running under '@${dstname}' subvolume now"
+srcvol=/${srcname}/@
+dstvol=/${dstname}/@
+
+dstvol_alert="==> abort: you are running under '@${dstvol}' subvolume now"
 findmnt /${srcname} &>/dev/null && errf "$dstvol_alert"
 findmnt /${dstname} &>/dev/null || errf "$dstvol_alert"
 
@@ -30,16 +33,14 @@ mkdir -p $stubdst
 cp -rfP ${stubsrc}/* ${stubdst}/
 echo "==> copied vmlinuz, initramfs.img from '@${srcname}' to '@${dstname}'"
 
-dstvol=/${dstname}/@
-
 # remove the read-only protection just in case
-[[ -d $dstvol ]] && btrfs prop set -f -ts $dstvol ro false
+btrfs prop set -f -ts $dstvol ro false
 
-printf "==> "
-[[ -d $dstvol ]] && btrfs subvolume delete $dstvol
+btrfs subvolume delete $dstvol > /dev/null
+echo "==> deleted subvolume '${dstvol}'"
 
-printf "==> "
-btrfs subvolume snapshot / $dstvol
+btrfs subvolume snapshot / $dstvol > /dev/null
+echo "==> created snapshot of '${srcvol}' in '${dstvol}'"
 
 echo "==> modify fstab in '/${dstname}/@'"
 sed -i -r \
