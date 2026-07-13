@@ -20,17 +20,15 @@ case "$1" in
         ;;
 esac
 
-dstvol_alert="Abort: you are running under '@${dstname}' subvolume now"
+dstvol_alert="==> abort: you are running under '@${dstname}' subvolume now"
 findmnt /${srcname} &>/dev/null && errf "$dstvol_alert"
 findmnt /${dstname} &>/dev/null || errf "$dstvol_alert"
 
-printf "==> Copy vmlinuz and initrd from '@${srcname}' to '@${dstname}'\n"
 stubsrc=/efi/${srcname}
 stubdst=/efi/${dstname}
-stubtmp=/efi/t
-[[ -d $stubdst ]] && mv $stubdst $stubtmp
-[[ -d $stubsrc ]] && cp -r $stubsrc $stubdst
-[[ -d $stubtmp ]] && rm -rf $stubtmp
+mkdir -p $stubdst
+cp -rfP ${stubsrc}/* ${stubdst}/
+echo "==> copied vmlinuz, initramfs.img from '@${srcname}' to '@${dstname}'"
 
 dstvol=/${dstname}/@
 
@@ -43,7 +41,7 @@ printf "==> "
 printf "==> "
 btrfs subvolume snapshot / $dstvol
 
-printf "==> Modify fstab in '/${dstname}/@'\n"
+echo "==> modify fstab in '/${dstname}/@'"
 sed -i -r \
     -e "s#/${dstname}#/${srcname}#" \
     -e "s#@${dstname}\s+0#@${srcname}   0#" \
@@ -53,6 +51,5 @@ sed -i -r \
 time=$(date +%Y%m%d.%H%M%S)
 timetxt=/${dstname}/timestamp.${time}.txt
 rm /${dstname}/*.txt
-printf "${time}\n" > $timetxt
-printf "==> Create ${timetxt}\n"
-
+echo "${time}" > $timetxt
+echo "==> created ${timetxt}"
