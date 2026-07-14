@@ -53,7 +53,7 @@ vol-num() {
 vol-notify() {
    local vol="$1"
    local msg="${2:-Volume}"
-   notify-send -a $(basename $0) -t 1500 \
+   notify-send -a $(basename $0) -t 1000 \
       -h int:value:$vol \
       -h string:x-canonical-private-synchronous:volume \
       "$msg"
@@ -115,7 +115,7 @@ sink-toggle() {
       desc=$(pw-dump | jq -r --argjson id ${targetid} '.[]|select(.id==$id)|.info.props."node.description"')
 
       wpctl set-default ${targetid}
-      notify-send -a $(basename $0) -t 2000 "Audio Sink" "${desc}"
+      notify-send -a $(basename $0) -t 1000 "Audio Sink" "${desc}"
 }
 
 #################################################################################
