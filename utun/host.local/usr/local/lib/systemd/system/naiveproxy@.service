@@ -6,7 +6,7 @@ Requires=network-online.target
 [Service]
 User=%i
 Type=simple
-ExecStart=/usr/local/bin/naiveproxy /usr/local/etc/naiveproxy.json
+ExecStart=/usr/local/bin/naive /usr/local/etc/naiveproxy.json
 TimeoutStopSec=5s
 LimitNOFILE=1024000
 PrivateTmp=true

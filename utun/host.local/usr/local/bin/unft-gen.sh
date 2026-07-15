@@ -1,1 +1,0 @@
-../etc/unft/unft-gen.sh
