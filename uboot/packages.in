@@ -9,7 +9,7 @@
 COMM_PKGS=" bash bash-completion kbd coreutils util-linux usbutils "
 COMM_PKGS+=" e2fsprogs btrfs-progs dosfstools parted cryptsetup "
 COMM_PKGS+=" less gawk sed man-db tzdata fontconfig curl neovim "
-COMM_PKGS+=" systemd dracut kmscon seatd "
+COMM_PKGS+=" systemd dracut kmscon seatd iwd "
 
 COMM_DESK_PKGS=" sway swaylock swaybg labwc wl-clipboard mako fuzzel wmenu "
 COMM_DESK_PKGS+=" xdg-desktop-portal-gtk grim kanshi pavucontrol wob "
@@ -37,6 +37,9 @@ FEDORA_DESK_PKGS+=" fcitx5-gtk fcitx5-qt fcitx5-configtool fcitx5-rime "
 FEDORA_DESK_PKGS+=" pipewire-utils openssh-server "
 FEDORA_DESK_PKGS+=" amd-ucode-firmware iwlwifi-mvm-firmware "
 FEDORA_DESK_PKGS+=" fuse fuse-libs plymouth-system-theme "
+
+# https://github.com/AppImage/AppImageKit/wiki/FUSE
+# 'kernel-modules-extra' includes gamepad firmware
 
 ################################################################################
 # ArchLinux
