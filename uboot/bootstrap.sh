@@ -22,6 +22,7 @@ ROOT_FS=$(realpath $ROOT_FS)
 
 SELF_DIR=$(dirname $(realpath ${BASH_SOURCE[0]}))
 PROJ_DIR=$(dirname $SELF_DIR)
+PROJ_NAME=$(basename $PROJ_DIR)
 
 test_empty_dir() {
    local DIR="$1"
@@ -134,7 +135,7 @@ bootstrap_os() {
    bootstrap_post
 
    cp -rP ${PROJ_DIR} ${ROOT_FS}/root/
-   echo "==> copied '$(basename $PROJ_DIR)' to 'root.fs/root/'"
+   echo "==> copied '${PROJ_NAME}' to 'root.fs/root/'"
 
    vfs_mount
 
@@ -149,9 +150,9 @@ bootstrap_os() {
    vfs_chroot useradd -r -m -U -s /usr/bin/nologin i
    echo "==> created system user 'i'"
 
-   vfs_chroot cp -rP /root/hikerlinux /home/u/
-   vfs_chroot chown -R u:u /home/u/hikerlinux
-   vfs_chroot runuser - u -c '~/hikerlinux/udot/udot.sh install nvim'
+   vfs_chroot cp -rP /root/${PROJ_NAME} /home/u/
+   vfs_chroot chown -R u:u /home/u/${PROJ_NAME}
+   vfs_chroot runuser - u -c '~/${PROJ_NAME}/udot/udot.sh install nvim'
 
    mkdir -p /root/.config
    ln -sf /home/u/.config/nvim /root/.config/nvim
