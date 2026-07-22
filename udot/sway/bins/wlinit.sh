@@ -4,8 +4,9 @@ chkcmd() { command -v "${@}" &>/dev/null; }
 chksrv() { pidof "${@}" &>/dev/null; }
 bgr() { nohup "${@}" &>/dev/null & }
 
-chkcmd kanshi && ! chksrv kanshi && bgr kanshi
 chkcmd fcitx5 && ! chksrv fcitx5 && bgr fcitx5 -d -r
+chkcmd kanshi && ! chksrv kanshi && bgr kanshi
+chkcmd kanshictl && kanshictl reload
 
 POLKIT_NAME=polkit-mate-authentication-agent-1
 POLKIT_FEDORA=/usr/libexec/${POLKIT_NAME}
