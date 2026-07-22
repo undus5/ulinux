@@ -222,7 +222,13 @@ theme() {
 # apps
 #################################################################################
 
-terminal() { upk launch open-with-terminal; }
+terminal() {
+   if command -v foot &>/dev/null; then
+      foot
+   elif command -v alacritty &>/dev/null; then
+      alacritty
+   fi
+}
 
 dynamic-menu() { wmenu-run -b -f 'monospace bold 18' "${@}"; }
 
