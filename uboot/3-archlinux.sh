@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SELF_DIR=$(dirname $(realpath ${BASH_SOURCE[0]}))
-source ${SELF_DIR}/packages.in
+source ${SELF_DIR}/packages.sh
 
 BASE_PKGS="$ARCHLINUX_BASE_PKGS"
 DESK_PKGS="$ARCHLINUX_DESK_PKGS"
